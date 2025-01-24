@@ -1,0 +1,59 @@
+services:
+  mariadb:
+    container_name: database_processed
+    image: mariadb:latest
+    restart: always
+    env_file:
+      - secrets\mariadb.env
+    volumes:
+      - database_storage:\var\lib\mysql
+    networks:
+      - database_network
+  redis:
+    container_name: database_cache
+    image: redis:latest
+    restart: always
+    env_file:
+      - secrets\redis.env
+    volumes:
+      - database_storage:\data
+    networks:
+      - database_network
+  mongodb:
+    container_name: database_raw
+    image: mongo:latest
+    restart: always
+    env_file:
+      - secrets\mongodb.env
+    volumes:
+      - database_storage:\data\db
+    networks:
+      - database_network
+  nodejs:
+    container_name: application_api
+    image: node:current-alpine
+    restart: always
+    env_file:
+      - secrets\api.env
+    networks:
+      - database_network
+    depends_on:
+      - redis
+      - mariadb
+  processor:
+    container_name: application_data
+    image: node:current-alpine
+    restart: always
+    env_file:
+      - secrets\processor.env
+    networks:
+      - database_network
+    depends_on:
+      - mongodb
+      - mariadb
+
+volumes:
+  database_storage:
+
+networks:
+  database_network:
