@@ -53,7 +53,7 @@ services:
       - mariadb
   angular:
     container_name: application_website
-    image: ghcr.io/arma-reforger-manager/website:latest
+    image: ghcr.io/arma-reforger-manager/website:main
     restart: always
     ports:
       - "80:4200"
