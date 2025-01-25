@@ -29,7 +29,7 @@ services:
       - database_storage:\data\db
     networks:
       - database_network
-  nodejs:
+  api:
     container_name: application_api
     image: node:current-alpine
     restart: always
@@ -51,6 +51,14 @@ services:
     depends_on:
       - mongodb
       - mariadb
+  angular:
+    container_name: application_website
+    image: ghcr.io/arma-reforger-manager/website:main
+    restart: always
+    env_file:
+      - secrets\website.env
+    depends_on:
+      - api
 
 volumes:
   database_storage:
