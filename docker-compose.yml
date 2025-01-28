@@ -3,30 +3,33 @@ services:
     container_name: database_processed
     image: mariadb:latest
     restart: always
-    env_file:
-      - secrets\mariadb.env
+    environment:
+      - MARIADB_ROOT_PASSWORD=
+      - MARIADB_USER=
+      - MARIADB_PASSWORD=
     volumes:
-      - database_storage:\var\lib\mysql
+      - database_mariadb:/var/lib/mysql
     networks:
       - database_network
   redis:
     container_name: database_cache
     image: redis:latest
     restart: always
-    env_file:
-      - secrets\redis.env
+    environment:
+      - REDIS_ARGS=
     volumes:
-      - database_storage:\data
+      - database_redis:/data
     networks:
       - database_network
   mongodb:
     container_name: database_raw
     image: mongo:latest
     restart: always
-    env_file:
-      - secrets\mongodb.env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=
+      - MONGO_INITDB_ROOT_PASSWORD=
     volumes:
-      - database_storage:\data\db
+      - database_mongodb:/data/db
     networks:
       - database_network
   api:
@@ -35,8 +38,8 @@ services:
     restart: always
     ports:
       - "82:80"
-    env_file:
-      - secrets\api.env
+    volumes:
+      - api_certs:/work/certs
     networks:
       - database_network
     depends_on:
@@ -46,26 +49,22 @@ services:
     container_name: application_data
     image: ghcr.io/arma-reforger-manager/processor:latest
     restart: always
-    env_file:
-      - secrets\processor.env
+    ports:
+      - "83:83"
     networks:
       - database_network
+      - portainer_agent_network
     depends_on:
       - mongodb
       - mariadb
-  angular:
-    container_name: application_website
-    image: ghcr.io/arma-reforger-manager/website:latest
-    restart: always
-    ports:
-      - "81:4200"
-    env_file:
-      - secrets\website.env
-    depends_on:
-      - api
 
 volumes:
-  database_storage:
+  database_mongodb:
+  database_mariadb:
+  database_redis:
+  api_certs:
 
 networks:
   database_network:
+  portainer_agent_network:
+    # external: true
