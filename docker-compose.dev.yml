@@ -31,38 +31,43 @@ services:
       - database_network
   api:
     container_name: application_api
-    image: node:current-alpine
+    build:
+      context: ../api/src
+      dockerfile: Dockerfile
     restart: always
+    working_dir: /work
+    volumes:
+      - ../api/src:/work
+      - ../api/src/node_modules:/work/node_modules
     ports:
-      - "82:80"
-    env_file:
-      - secrets\api.env
-    networks:
-      - database_network
-    depends_on:
-      - redis
-      - mariadb
-  processor:
-    container_name: application_data
-    image: node:current-alpine
-    restart: always
-    env_file:
-      - secrets\processor.env
-    networks:
-      - database_network
-    depends_on:
-      - mongodb
-      - mariadb
-  angular:
-    container_name: application_website
-    image: ghcr.io/arma-reforger-manager/website:main
-    restart: always
-    ports:
-      - "81:4200"
+      - "81:80"
     env_file:
       - secrets\website.env
-    depends_on:
-      - api
+  # processor:
+  #   container_name: application_data
+  #   image: node:current-alpine
+  #   restart: always
+  #   env_file:
+  #     - secrets\processor.env
+  #   networks:
+  #     - database_network
+  #   depends_on:
+  #     - mongodb
+  #     - mariadb
+  angular:
+    container_name: application_website
+    build:
+      context: ../website/src
+      target: builder
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ../website/src:/project
+      - /project/node_modules
+    ports:
+      - "80:4200"
+    env_file:
+      - secrets\website.env
 
 volumes:
   database_storage:
