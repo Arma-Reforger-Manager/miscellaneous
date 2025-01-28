@@ -31,7 +31,7 @@ services:
       - database_network
   api:
     container_name: application_api
-    image: node:current-alpine
+    image: ghcr.io/arma-reforger-manager/api:latest
     restart: always
     ports:
       - "82:80"
@@ -44,7 +44,7 @@ services:
       - mariadb
   processor:
     container_name: application_data
-    image: node:current-alpine
+    image: ghcr.io/arma-reforger-manager/processor:latest
     restart: always
     env_file:
       - secrets\processor.env
@@ -55,7 +55,7 @@ services:
       - mariadb
   angular:
     container_name: application_website
-    image: ghcr.io/arma-reforger-manager/website:main
+    image: ghcr.io/arma-reforger-manager/website:latest
     restart: always
     ports:
       - "81:4200"
